@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MM Vibe - Musiqa Tahrirlash</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* ... (siz bergan barcha CSS kodini o'zgartirmasdan saqlab qo'yamiz) ... */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .container {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 35px 25px;
+            max-width: 950px;
+            width: 100%;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.6s ease;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        h1 {
+            color: #1a202c;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+            background: #f7fafc;
+            padding: 6px;
+            border-radius: 12px;
+            position: relative;
+        }
+        .tab-indicator {
+            position: absolute;
+            height: calc(100% - 12px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            top: 6px;
+            z-index: 0;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            color: #718096;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .tab.active {
+            color: white;
+        }
+        .tab:not(.active):hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        .badge {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 20px;
+            text-align: center;
+            animation: scaleIn 0.3s ease;
+        }
+        .tab:not(.active) .badge {
+            background: #e2e8f0;
+            color: #718096;
+        }
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .upload-area:hover::before {
+            left: 100%;
+        }
+        .upload-area:hover {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+        .upload-area.dragover {
+            border-color: #48bb78;
+            background: linear-gradient(135deg, #f0fff4 0%, #e6f9f0 100%);
+            transform: scale(1.02);
+            box-shadow: 0 12px 30px rgba(72, 187, 120, 0.3);
+        }
+        .upload-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            color: #a0aec0;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover .upload-icon {
+            color: #667eea;
+            transform: scale(1.1) rotate(5deg);
+        }
+        .upload-text {
+            color: #2d3748;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .upload-hint {
+            color: #a0aec0;
+            font-size: 13px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .global-controls {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 2px solid #e2e8f0;
+            animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .global-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .global-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .input-group label {
+            color: #4a5568;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .input-group input,
+        .form-group-full input,
+        .form-group-full textarea {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .input-group input:focus,
+        .form-group-full input:focus,
+        .form-group-full textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .music-card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideIn 0.4s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .music-card:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+            border-color: #667eea;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            cursor: pointer;
+            user-select: none;
+            background: linear-gradient(135deg, #f7fafc 0%, #ffffff 100%);
+            transition: background 0.3s ease;
+        }
+        .card-header:hover {
+            background: linear-gradient(135deg, #edf2f7 0%, #f7fafc 100%);
+        }
+        .card-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 15px;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-toggle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        .card-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+        }
+        .card-toggle:active {
+            transform: scale(0.95);
+        }
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-content.open {
+            max-height: 2500px;
+        }
+        .card-body {
+            padding: 20px;
+            background: white;
+        }
+        .audio-player {
+            margin-bottom: 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .audio-player audio {
+            width: 100%;
+            height: 40px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .form-group-full {
+            margin-bottom: 15px;
+        }
+        .form-group-full label {
+            display: block;
+            color: #4a5568;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .form-group-full textarea {
+            width: 100%;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        .image-upload {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+        .image-preview {
+            width: 110px;
+            height: 110px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #e2e8f0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .image-preview:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+        }
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-placeholder {
+            width: 48px;
+            height: 48px;
+            color: #cbd5e0;
+        }
+        .image-controls {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn-small {
+            padding: 10px 18px;
+            font-size: 13px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 101, 101, 0.3);
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 101, 101, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .info-box {
+            background: linear-gradient(135deg, #ebf4ff 0%, #e0efff 100%);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            color: #2c5282;
+            text-align: center;
+            margin-top: 10px;
+            border: 2px solid #bee3f8;
+            font-weight: 600;
+        }
+        .processing {
+            text-align: center;
+            padding: 30px 20px;
+            color: #4a5568;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .progress-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .progress-text {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 300px;
+            animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 4px solid;
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .toast.success {
+            border-left-color: #48bb78;
+        }
+        .toast.error {
+            border-left-color: #f56565;
+        }
+        .toast.info {
+            border-left-color: #667eea;
+        }
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+        .toast.success .toast-icon {
+            color: #48bb78;
+        }
+        .toast.error .toast-icon {
+            color: #f56565;
+        }
+        .toast.info .toast-icon {
+            color: #667eea;
+        }
+        .toast-content {
+            flex: 1;
+        }
+        .toast-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: #2d3748;
+            margin-bottom: 2px;
+        }
+        .toast-message {
+            font-size: 13px;
+            color: #718096;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 18px;
+            }
+            h1 {
+                font-size: 22px;
+            }
+            .tabs {
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+            .tabs::-webkit-scrollbar {
+                display: none;
+            }
+            .global-inputs,
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+            }
+            .image-upload {
+                flex-direction: column;
+            }
+            .image-preview {
+                width: 100%;
+                height: 200px;
+            }
+            .toast-container {
+                left: 20px;
+                right: 20px;
+            }
+            .toast {
+                min-width: auto;
+            }
+        }
+        /* Language switcher */
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        .lang-switcher select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e0;
+            background: white;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-switcher">
+        <select id="languageSelect">
+            <option value="uz">O'zbek</option>
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i data-lucide="music"></i>
+                <span data-i18n="appTitle">MM Vibe</span>
+            </h1>
+            <p class="subtitle" data-i18n="appSubtitle">Telegram kanal uchun musiqa qirqish va metadata tahrirlash</p>
+        </div>
+        <div class="tabs">
+            <div class="tab-indicator" id="tabIndicator"></div>
+            <button class="tab active" onclick="switchTab('cut')">
+                <i data-lucide="scissors"></i>
+                <span data-i18n="tabCut">Qirqish</span>
+                <span class="badge" id="cutBadge">0</span>
+            </button>
+            <button class="tab" onclick="switchTab('metadata')">
+                <i data-lucide="file-edit"></i>
+                <span data-i18n="tabMetadata">Metadata</span>
+                <span class="badge" id="metaBadge">0</span>
+            </button>
+        </div>
+
+        <!-- CUT TAB -->
+        <div id="cutTab" class="tab-content active">
+            <div class="upload-area" id="uploadAreaCut">
+                <i data-lucide="upload-cloud" class="upload-icon"></i>
+                <div class="upload-text" data-i18n="uploadAudioFiles">Musiqa fayllarini yuklang</div>
+                <div class="upload-hint" data-i18n="uploadHintCut">30-40 soniyalik qisqa kliplar yarating</div>
+                <input type="file" id="fileInputCut" accept="audio/*" multiple>
+            </div>
+            <div id="globalControlsCut" style="display: none;">
+                <div class="global-controls">
+                    <div class="global-title">
+                        <i data-lucide="settings"></i>
+                        <span data-i18n="globalForAll">Barcha musiqalar uchun</span>
+                    </div>
+                    <div class="global-inputs">
+                        <div class="input-group">
+                            <label data-i18n="startTime">Boshlanish (soniya)</label>
+                            <input type="number" id="globalStart" min="0" step="0.1" value="0">
+                        </div>
+                        <div class="input-group">
+                            <label data-i18n="endTime">Tugash (soniya)</label>
+                            <input type="number" id="globalEnd" min="0" step="0.1" value="30">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="applyGlobalTime()" style="margin-top: 12px; width: 100%;">
+                        <i data-lucide="refresh-cw"></i>
+                        <span data-i18n="applyToAll">Barchaga qo'llash</span>
+                    </button>
+                </div>
+            </div>
+            <div id="filesListCut"></div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="processCutBtn" disabled>
+                    <i data-lucide="scissors"></i>
+                    <span data-i18n="processCut">Musiqalarni qirqish</span>
+                </button>
+                <button class="btn btn-secondary" id="clearCutBtn" disabled>
+                    <i data-lucide="trash-2"></i>
+                    <span data-i18n="clearAll">Tozalash</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- METADATA TAB -->
+        <div id="metadataTab" class="tab-content">
+            <div class="upload-area" id="uploadAreaMeta">
+                <i data-lucide="upload-cloud" class="upload-icon"></i>
+                <div class="upload-text" data-i18n="uploadAudioFiles">Musiqa fayllarini yuklang</div>
+                <div class="upload-hint" data-i18n="uploadHintMeta">MP3, M4A, WAV formatlarini qo'llab-quvvatlaydi</div>
+                <input type="file" id="fileInputMeta" accept="audio/*" multiple>
+            </div>
+            <div id="globalControlsMeta" style="display: none;">
+                <div class="global-controls">
+                    <div class="global-title">
+                        <i data-lucide="settings"></i>
+                        <span data-i18n="globalForAll">Barcha musiqalar uchun</span>
+                    </div>
+                    <div class="form-group-full">
+                        <label data-i18n="album">Album</label>
+                        <input type="text" id="globalAlbum" placeholder="Album nomini kiriting">
+                    </div>
+                    <div class="form-group-full">
+                        <label data-i18n="lyricsComment">Lyrics/Comment</label>
+                        <textarea id="globalLyrics" placeholder="Lyrics yoki komment kiriting"></textarea>
+                    </div>
+                    <div class="form-group-full">
+                        <label data-i18n="globalCover">Rasm (barcha musiqalar uchun)</label>
+                        <input type="file" id="globalImage" accept="image/*">
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="applyGlobalMetadata()" style="margin-top: 12px; width: 100%;">
+                        <i data-lucide="refresh-cw"></i>
+                        <span data-i18n="applyToAll">Barchaga qo'llash</span>
+                    </button>
+                </div>
+            </div>
+            <div id="filesListMeta"></div>
+            <div class="action-buttons">
+                <button class="btn btn-success" id="downloadAllBtn" disabled>
+                    <i data-lucide="download"></i>
+                    <span data-i18n="downloadAll">Barcha fayllarni yuklash</span>
+                </button>
+                <button class="btn btn-secondary" id="clearMetaBtn" disabled>
+                    <i data-lucide="trash-2"></i>
+                    <span data-i18n="clearAll">Tozalash</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Translation dictionary
+        const translations = {
+            uz: {
+                appTitle: "MM Vibe",
+                appSubtitle: "Telegram kanal uchun musiqa qirqish va metadata tahrirlash",
+                tabCut: "Qirqish",
+                tabMetadata: "Metadata",
+                uploadAudioFiles: "Musiqa fayllarini yuklang",
+                uploadHintCut: "30-40 soniyalik qisqa kliplar yarating",
+                uploadHintMeta: "MP3, M4A, WAV formatlarini qo'llab-quvvatlaydi",
+                globalForAll: "Barcha musiqalar uchun",
+                startTime: "Boshlanish (soniya)",
+                endTime: "Tugash (soniya)",
+                applyToAll: "Barchaga qo'llash",
+                processCut: "Musiqalarni qirqish",
+                clearAll: "Tozalash",
+                album: "Album",
+                lyricsComment: "Lyrics/Comment",
+                globalCover: "Rasm (barcha musiqalar uchun)",
+                downloadAll: "Barcha fayllarni yuklash",
+                // ... qo'shimcha kerak bo'lsa kengaytirish mumkin
+            },
+            ru: {
+                appTitle: "MM Vibe",
+                appSubtitle: "Обрезка музыки и редактирование метаданных для Telegram-канала",
+                tabCut: "Обрезка",
+                tabMetadata: "Метаданные",
+                uploadAudioFiles: "Загрузите аудиофайлы",
+                uploadHintCut: "Создавайте короткие клипы 30–40 секунд",
+                uploadHintMeta: "Поддерживает MP3, M4A, WAV",
+                globalForAll: "Для всех треков",
+                startTime: "Начало (сек)",
+                endTime: "Конец (сек)",
+                applyToAll: "Применить ко всем",
+                processCut: "Обрезать музыку",
+                clearAll: "Очистить",
+                album: "Альбом",
+                lyricsComment: "Текст/Комментарий",
+                globalCover: "Обложка (для всех треков)",
+                downloadAll: "Скачать все файлы",
+            },
+            en: {
+                appTitle: "MM Vibe",
+                appSubtitle: "Music trimming and metadata editing for Telegram channel",
+                tabCut: "Trim",
+                tabMetadata: "Metadata",
+                uploadAudioFiles: "Upload audio files",
+                uploadHintCut: "Create 30-40 second short clips",
+                uploadHintMeta: "Supports MP3, M4A, WAV formats",
+                globalForAll: "For all tracks",
+                startTime: "Start (seconds)",
+                endTime: "End (seconds)",
+                applyToAll: "Apply to all",
+                processCut: "Trim music",
+                clearAll: "Clear",
+                album: "Album",
+                lyricsComment: "Lyrics/Comment",
+                globalCover: "Cover image (for all tracks)",
+                downloadAll: "Download all files",
+            }
+        };
+
+        let currentLang = 'uz';
+        let cutFiles = [];
+        let metaFiles = [];
+        let globalImageData = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Lucide icons safely
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+
+            // Language switch
+            document.getElementById('languageSelect').addEventListener('change', (e) => {
+                currentLang = e.target.value;
+                updateLanguage();
+            });
+
+            updateLanguage();
+
+            // Initialize tab indicator
+            const indicator = document.getElementById('tabIndicator');
+            const activeTab = document.querySelector('.tab.active');
+            if (indicator && activeTab) {
+                indicator.style.width = activeTab.offsetWidth + 'px';
+                indicator.style.left = activeTab.offsetLeft + 'px';
+            }
+
+            // CUT TAB EVENTS
+            const uploadAreaCut = document.getElementById('uploadAreaCut');
+            const fileInputCut = document.getElementById('fileInputCut');
+            uploadAreaCut.addEventListener('click', () => fileInputCut.click());
+            uploadAreaCut.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadAreaCut.classList.add('dragover');
+            });
+            uploadAreaCut.addEventListener('dragleave', () => {
+                uploadAreaCut.classList.remove('dragover');
+            });
+            uploadAreaCut.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadAreaCut.classList.remove('dragover');
+                handleCutFiles(e.dataTransfer.files);
+            });
+            fileInputCut.addEventListener('change', (e) => handleCutFiles(e.target.files));
+
+            // METADATA TAB EVENTS
+            const uploadAreaMeta = document.getElementById('uploadAreaMeta');
+            const fileInputMeta = document.getElementById('fileInputMeta');
+            uploadAreaMeta.addEventListener('click', () => fileInputMeta.click());
+            uploadAreaMeta.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadAreaMeta.classList.add('dragover');
+            });
+            uploadAreaMeta.addEventListener('dragleave', () => {
+                uploadAreaMeta.classList.remove('dragover');
+            });
+            uploadAreaMeta.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadAreaMeta.classList.remove('dragover');
+                handleMetaFiles(e.dataTransfer.files);
+            });
+            fileInputMeta.addEventListener('change', (e) => handleMetaFiles(e.target.files));
+
+            document.getElementById('globalImage').addEventListener('change', async (e) => {
+                if (e.target.files[0]) {
+                    globalImageData = await fileToBase64(e.target.files[0]);
+                    showToast('success', getText('globalCover'), getText('globalCover') + ' ' + getText('applied'));
+                }
+            });
+
+            // Buttons
+            document.getElementById('clearCutBtn').addEventListener('click', clearCutFiles);
+            document.getElementById('processCutBtn').addEventListener('click', processCut);
+            document.getElementById('clearMetaBtn').addEventListener('click', clearMetaFiles);
+            document.getElementById('downloadAllBtn').addEventListener('click', downloadAllMeta);
+        });
+
+        function getText(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                el.textContent = getText(key);
+            });
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // --- CUT FUNCTIONS ---
+        function handleCutFiles(files) {
+            const audioFiles = Array.from(files).filter(file => file.type.startsWith('audio/'));
+            if (audioFiles.length === 0) {
+                showToast('error', 'Xatolik', 'Iltimos, audio fayllarni tanlang!');
+                return;
+            }
+            audioFiles.forEach(file => {
+                const id = Date.now() + Math.random();
+                cutFiles.push({
+                    id: id,
+                    file: file,
+                    startTime: 0,
+                    endTime: 30,
+                    duration: 0,
+                    expanded: false
+                });
+            });
+            renderCutFiles();
+            updateCutButtons();
+            updateBadges();
+            document.getElementById('globalControlsCut').style.display = 'block';
+            showToast('success', 'Muvaffaqiyatli', `${audioFiles.length} ta fayl yuklandi`);
+        }
+
+        function renderCutFiles() {
+            const filesListCut = document.getElementById('filesListCut');
+            if (cutFiles.length === 0) {
+                filesListCut.innerHTML = '<div class="processing" style="color: #a0aec0;"><i data-lucide="music" style="width: 48px; height: 48px; margin: 0 auto 10px; opacity: 0.3;"></i><br>Hali hech qanday fayl yuklanmagan</div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+            filesListCut.innerHTML = '';
+            cutFiles.forEach((audioFile, index) => {
+                const card = document.createElement('div');
+                card.className = 'music-card';
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'card-header';
+                headerDiv.onclick = () => toggleCard(audioFile.id);
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'card-title';
+                titleDiv.innerHTML = `<i data-lucide="music" style="width: 18px; height: 18px;"></i> ${index + 1}. ${audioFile.file.name}`;
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'card-toggle';
+                toggleBtn.innerHTML = audioFile.expanded ? '<i data-lucide="chevron-up"></i>' : '<i data-lucide="chevron-down"></i>';
+                headerDiv.appendChild(titleDiv);
+                headerDiv.appendChild(toggleBtn);
+                const contentDiv = document.createElement('div');
+                contentDiv.className = `card-content ${audioFile.expanded ? 'open' : ''}`;
+                contentDiv.innerHTML = `
+                    <div class="card-body">
+                        <div class="audio-player">
+                            <audio controls id="audio-${audioFile.id}">
+                                <source src="${URL.createObjectURL(audioFile.file)}" type="${audioFile.file.type}">
+                            </audio>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label><i data-lucide="play" style="width: 14px; height: 14px; display: inline;"></i> ${getText('startTime')}</label>
+                                <input type="number" min="0" step="0.1" value="${audioFile.startTime}" 
+                                    onchange="updateCutTime(${audioFile.id}, 'start', this.value)">
+                            </div>
+                            <div class="input-group">
+                                <label><i data-lucide="square" style="width: 14px; height: 14px; display: inline;"></i> ${getText('endTime')}</label>
+                                <input type="number" min="0" step="0.1" value="${audioFile.endTime}" 
+                                    onchange="updateCutTime(${audioFile.id}, 'end', this.value)">
+                            </div>
+                        </div>
+                        <div class="info-box" id="info-${audioFile.id}">
+                            <i data-lucide="clock" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i>
+                            Qirqilgan qism: ${(audioFile.endTime - audioFile.startTime).toFixed(1)} soniya
+                        </div>
+                        <div class="card-actions" style="margin-top: 15px;">
+                            <button class="btn btn-danger btn-small" onclick="removeCutFile(${audioFile.id})">
+                                <i data-lucide="trash-2"></i>
+                                O'chirish
+                            </button>
+                        </div>
+                    </div>
+                `;
+                card.appendChild(headerDiv);
+                card.appendChild(contentDiv);
+                filesListCut.appendChild(card);
+                const audio = document.getElementById(`audio-${audioFile.id}`);
+                audio.addEventListener('loadedmetadata', () => {
+                    audioFile.duration = audio.duration;
+                    if (audioFile.endTime > audio.duration) {
+                        audioFile.endTime = Math.min(30, audio.duration);
+                        renderCutFiles();
+                    }
+                });
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function toggleCard(id) {
+            const file = cutFiles.find(f => f.id === id);
+            if (file) {
+                file.expanded = !file.expanded;
+                renderCutFiles();
+            }
+        }
+
+        function updateCutTime(id, type, value) {
+            const audioFile = cutFiles.find(f => f.id === id);
+            if (!audioFile) return;
+            value = parseFloat(value);
+            if (type === 'start') {
+                audioFile.startTime = Math.max(0, value);
+                if (audioFile.startTime >= audioFile.endTime) {
+                    audioFile.endTime = audioFile.startTime + 1;
+                }
+            } else {
+                audioFile.endTime = value;
+                if (audioFile.endTime <= audioFile.startTime) {
+                    audioFile.startTime = Math.max(0, audioFile.endTime - 1);
+                }
+            }
+            const duration = audioFile.endTime - audioFile.startTime;
+            const infoBox = document.getElementById(`info-${id}`);
+            infoBox.innerHTML = `<i data-lucide="clock" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i> Qirqilgan qism: ${duration.toFixed(1)} soniya`;
+            if (duration < 30 || duration > 40) {
+                infoBox.innerHTML += ' <span style="color: #f56565;"><i data-lucide="alert-triangle" style="width: 16px; height: 16px; display: inline; vertical-align: middle;"></i> 30-40 soniya oralig\'ida bo\'lishi kerak</span>';
+            }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function applyGlobalTime() {
+            const start = parseFloat(document.getElementById('globalStart').value) || 0;
+            const end = parseFloat(document.getElementById('globalEnd').value) || 30;
+            cutFiles.forEach(file => {
+                file.startTime = start;
+                file.endTime = Math.min(end, file.duration || end);
+            });
+            renderCutFiles();
+            showToast('success', 'Qo\'llandi', 'Vaqt barcha musiqalarga qo\'llandi');
+        }
+
+        function removeCutFile(id) {
+            cutFiles = cutFiles.filter(f => f.id !== id);
+            renderCutFiles();
+            updateCutButtons();
+            updateBadges();
+            if (cutFiles.length === 0) {
+                document.getElementById('globalControlsCut').style.display = 'none';
+            }
+            showToast('info', 'O\'chirildi', 'Fayl ro\'yxatdan o\'chirildi');
+        }
+
+        function updateCutButtons() {
+            const processCutBtn = document.getElementById('processCutBtn');
+            const clearCutBtn = document.getElementById('clearCutBtn');
+            processCutBtn.disabled = cutFiles.length === 0;
+            clearCutBtn.disabled = cutFiles.length === 0;
+        }
+
+        function clearCutFiles() {
+            if (confirm('Barcha fayllarni o\'chirmoqchimisiz?')) {
+                cutFiles = [];
+                renderCutFiles();
+                updateCutButtons();
+                updateBadges();
+                document.getElementById('globalControlsCut').style.display = 'none';
+                showToast('info', 'Tozalandi', 'Barcha fayllar o\'chirildi');
+            }
+        }
+
+        async function processCut() {
+            const invalidFiles = cutFiles.filter(f => {
+                const duration = f.endTime - f.startTime;
+                return duration < 30 || duration > 40;
+            });
+            if (invalidFiles.length > 0) {
+                showToast('error', 'Xatolik', 'Barcha fayllar 30-40 soniya oralig\'ida bo\'lishi kerak!');
+                return;
+            }
+            const processCutBtn = document.getElementById('processCutBtn');
+            processCutBtn.disabled = true;
+            const filesListCut = document.getElementById('filesListCut');
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'progress-container';
+            progressContainer.innerHTML = `
+                <div class="progress-bar">
+                    <div class="progress-fill" id="cutProgress" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="cutProgressText">0 / ${cutFiles.length}</div>
+            `;
+            filesListCut.innerHTML = '<div class="processing"><div class="spinner"></div>Musiqalar qayta ishlanmoqda...</div>';
+            filesListCut.appendChild(progressContainer);
+
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                let processed = 0;
+                for (let i = 0; i < cutFiles.length; i++) {
+                    const audioFile = cutFiles[i];
+                    const arrayBuffer = await audioFile.file.arrayBuffer();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    const startSample = Math.floor(audioFile.startTime * audioBuffer.sampleRate);
+                    const endSample = Math.floor(audioFile.endTime * audioBuffer.sampleRate);
+                    const length = endSample - startSample;
+                    const trimmedBuffer = audioContext.createBuffer(
+                        audioBuffer.numberOfChannels,
+                        length,
+                        audioBuffer.sampleRate
+                    );
+                    for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+                        const sourceData = audioBuffer.getChannelData(channel);
+                        const targetData = trimmedBuffer.getChannelData(channel);
+                        for (let j = 0; j < length; j++) {
+                            targetData[j] = sourceData[startSample + j];
+                        }
+                    }
+                    const originalExt = audioFile.file.name.substring(audioFile.file.name.lastIndexOf('.'));
+                    const baseName = audioFile.file.name.replace(/\.[^/.]+$/, '');
+                    let outputBlob;
+                    let fileName;
+                    if (originalExt.toLowerCase() === '.mp3') {
+                        outputBlob = await encodeMP3Low(trimmedBuffer);
+                        fileName = `cut mm vibe ${baseName}.mp3`;
+                    } else {
+                        outputBlob = bufferToWave(trimmedBuffer, true);
+                        fileName = `cut mm vibe ${baseName}${originalExt}`;
+                    }
+                    const url = URL.createObjectURL(outputBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    processed++;
+                    const progress = (processed / cutFiles.length) * 100;
+                    document.getElementById('cutProgress').style.width = progress + '%';
+                    document.getElementById('cutProgressText').textContent = `${processed} / ${cutFiles.length}`;
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                }
+                showToast('success', 'Bajarildi!', `${cutFiles.length} ta musiqa muvaffaqiyatli qirqildi`);
+                setTimeout(() => {
+                    cutFiles = [];
+                    renderCutFiles();
+                    updateCutButtons();
+                    updateBadges();
+                    processCutBtn.disabled = false;
+                    document.getElementById('globalControlsCut').style.display = 'none';
+                }, 2000);
+            } catch (error) {
+                filesListCut.innerHTML = '<div class="processing"><span style="color: #f56565;"><i data-lucide="x-circle" style="width: 48px; height: 48px; margin: 0 auto 10px;"></i><br>Xatolik yuz berdi</span></div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                showToast('error', 'Xatolik', error.message);
+                processCutBtn.disabled = false;
+            }
+        }
+
+        // --- METADATA FUNCTIONS ---
+        function handleMetaFiles(files) {
+            const audioFiles = Array.from(files).filter(file => file.type.startsWith('audio/'));
+            if (audioFiles.length === 0) {
+                showToast('error', 'Xatolik', 'Iltimos, audio fayllarni tanlang!');
+                return;
+            }
+            audioFiles.forEach(file => readMusicFile(file));
+            showToast('success', 'Yuklandi', `${audioFiles.length} ta fayl yuklandi`);
+        }
+
+        function readMusicFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                jsmediatags.read(file, {
+                    onSuccess: function(tag) {
+                        const picture = tag.tags.picture;
+                        let imageData = null;
+                        if (picture) {
+                            const base64String = arrayBufferToBase64(picture.data);
+                            imageData = `data:${picture.format};base64,${base64String}`;
+                        }
+                        const metadata = {
+                            id: Date.now() + Math.random(),
+                            file: file,
+                            originalName: file.name,
+                            title: tag.tags.title || getFileNameWithoutExt(file.name),
+                            artist: tag.tags.artist || '',
+                            album: tag.tags.album || '',
+                            year: tag.tags.year || '',
+                            genre: tag.tags.genre || '',
+                            lyrics: tag.tags.lyrics?.lyrics || tag.tags.comment?.text || '',
+                            imageData: imageData,
+                            fileData: e.target.result,
+                            expanded: false
+                        };
+                        addMusicToList(metadata);
+                    },
+                    onError: function(error) {
+                        const metadata = {
+                            id: Date.now() + Math.random(),
+                            file: file,
+                            originalName: file.name,
+                            title: getFileNameWithoutExt(file.name),
+                            artist: '',
+                            album: '',
+                            year: '',
+                            genre: '',
+                            lyrics: '',
+                            imageData: null,
+                            fileData: e.target.result,
+                            expanded: false
+                        };
+                        addMusicToList(metadata);
+                    }
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return btoa(binary);
+        }
+
+        function getFileNameWithoutExt(filename) {
+            return filename.replace(/\.[^/.]+$/, '');
+        }
+
+        function addMusicToList(metadata) {
+            metaFiles.push(metadata);
+            renderMetaFiles();
+            updateMetaButtons();
+            updateBadges();
+            document.getElementById('globalControlsMeta').style.display = 'block';
+        }
+
+        function renderMetaFiles() {
+            const filesListMeta = document.getElementById('filesListMeta');
+            if (metaFiles.length === 0) {
+                filesListMeta.innerHTML = '<div class="processing" style="color: #a0aec0;"><i data-lucide="disc" style="width: 48px; height: 48px; margin: 0 auto 10px; opacity: 0.3;"></i><br>Hali hech qanday fayl yuklanmagan</div>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+                return;
+            }
+            filesListMeta.innerHTML = '';
+            metaFiles.forEach((music, index) => {
+                const card = document.createElement('div');
+                card.className = 'music-card';
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'card-header';
+                headerDiv.onclick = () => toggleMetaCard(music.id);
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'card-title';
+                titleDiv.innerHTML = `<i data-lucide="disc" style="width: 18px; height: 18px;"></i> ${index + 1}. ${music.title || music.originalName}`;
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'card-toggle';
+                toggleBtn.innerHTML = music.expanded ? '<i data-lucide="chevron-up"></i>' : '<i data-lucide="chevron-down"></i>';
+                headerDiv.appendChild(titleDiv);
+                headerDiv.appendChild(toggleBtn);
+                const contentDiv = document.createElement('div');
+                contentDiv.className = `card-content ${music.expanded ? 'open' : ''}`;
+                contentDiv.innerHTML = `
+                    <div class="card-body">
+                        <div class="image-upload">
+                            <div class="image-preview" id="preview-${music.id}">
+                                ${music.imageData ? `<img src="${music.imageData}" alt="Cover">` : '<i data-lucide="image" class="image-placeholder"></i>'}
+                            </div>
+                            <div class="image-controls">
+                                <input type="file" id="image-${music.id}" accept="image/*" style="display: none;">
+                                <button class="btn btn-secondary btn-small" onclick="document.getElementById('image-${music.id}').click()">
+                                    <i data-lucide="upload"></i>
+                                    Rasm yuklash
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="removeImage(${music.id})" ${!music.imageData ? 'disabled' : ''}>
+                                    <i data-lucide="x"></i>
+                                    Rasmni o'chirish
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label><i data-lucide="music" style="width: 14px; height: 14px; display: inline;"></i> Musiqa nomi</label>
+                                <input type="text" value="${music.title}" data-id="${music.id}" data-field="title">
+                            </div>
+                            <div class="input-group">
+                                <label><i data-lucide="user" style="width: 14px; height: 14px; display: inline;"></i> Artist</label>
+                                <input type="text" value="${music.artist}" data-id="${music.id}" data-field="artist">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label><i data-lucide="disc" style="width: 14px; height: 14px; display: inline;"></i> Album</label>
+                                <input type="text" value="${music.album}" data-id="${music.id}" data-field="album">
+                            </div>
+                            <div class="input-group">
+                                <label><i data-lucide="calendar" style="width: 14px; height: 14px; display: inline;"></i> Yil</label>
+                                <input type="text" value="${music.year}" data-id="${music.id}" data-field="year">
+                            </div>
+                        </div>
+                        <div class="form-group-full">
+                            <label><i data-lucide="tag" style="width: 14px; height: 14px; display: inline;"></i> Janr</label>
+                            <input type="text" value="${music.genre}" data-id="${music.id}" data-field="genre">
+                        </div>
+                        <div class="form-group-full">
+                            <label><i data-lucide="file-text" style="width: 14px; height: 14px; display: inline;"></i> Lyrics/Comment</label>
+                            <textarea data-id="${music.id}" data-field="lyrics">${music.lyrics}</textarea>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-primary btn-small" onclick="saveMetadata(${music.id})">
+                                <i data-lucide="save"></i>
+                                Saqlash
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="removeMetaMusic(${music.id})">
+                                <i data-lucide="trash-2"></i>
+                                O'chirish
+                            </button>
+                        </div>
+                    </div>
+                `;
+                card.appendChild(headerDiv);
+                card.appendChild(contentDiv);
+                filesListMeta.appendChild(card);
+                const imageInput = document.getElementById(`image-${music.id}`);
+                imageInput.addEventListener('change', async (e) => {
+                    if (e.target.files[0]) {
+                        const imageData = await fileToBase64(e.target.files[0]);
+                        updateMetaField(music.id, 'imageData', imageData);
+                        renderMetaFiles();
+                        showToast('success', 'Rasm yuklandi', 'Rasm muvaffaqiyatli yuklandi');
+                    }
+                });
+                card.querySelectorAll('input[data-id], textarea[data-id]').forEach(input => {
+                    input.addEventListener('input', (e) => {
+                        updateMetaField(e.target.dataset.id, e.target.dataset.field, e.target.value);
+                    });
+                });
+            });
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function toggleMetaCard(id) {
+            const music = metaFiles.find(m => m.id === id);
+            if (music) {
+                music.expanded = !music.expanded;
+                renderMetaFiles();
+            }
+        }
+
+        function updateMetaField(id, field, value) {
+            const music = metaFiles.find(m => m.id == id);
+            if (music) {
+                music[field] = value;
+            }
+        }
+
+        async function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeImage(id) {
+            const music = metaFiles.find(m => m.id == id);
+            if (music) {
+                music.imageData = null;
+                renderMetaFiles();
+                showToast('info', 'O\'chirildi', 'Rasm o\'chirildi');
+            }
+        }
+
+        function applyGlobalMetadata() {
+            const album = document.getElementById('globalAlbum').value;
+            const lyrics = document.getElementById('globalLyrics').value;
+            let updated = 0;
+            metaFiles.forEach(music => {
+                if (album) {
+                    music.album = album;
+                    updated++;
+                }
+                if (lyrics) music.lyrics = lyrics;
+                if (globalImageData) music.imageData = globalImageData;
+            });
+            renderMetaFiles();
+            showToast('success', 'Qo\'llandi', `${metaFiles.length} ta faylga ma'lumotlar qo'llandi`);
+        }
+
+        function saveMetadata(id) {
+            const music = metaFiles.find(m => m.id == id);
+            if (!music) return;
+            const newFileName = music.artist && music.title 
+                ? `${music.artist} - ${music.title}${music.originalName.substring(music.originalName.lastIndexOf('.'))}` 
+                : music.originalName;
+            const blob = new Blob([music.fileData], { type: music.file.type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = newFileName;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('success', 'Saqlandi', `${newFileName}`);
+        }
+
+        function removeMetaMusic(id) {
+            metaFiles = metaFiles.filter(m => m.id != id);
+            renderMetaFiles();
+            updateMetaButtons();
+            updateBadges();
+            if (metaFiles.length === 0) {
+                document.getElementById('globalControlsMeta').style.display = 'none';
+            }
+            showToast('info', 'O\'chirildi', 'Fayl ro\'yxatdan o\'chirildi');
+        }
+
+        function updateMetaButtons() {
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            const clearMetaBtn = document.getElementById('clearMetaBtn');
+            downloadAllBtn.disabled = metaFiles.length === 0;
+            clearMetaBtn.disabled = metaFiles.length === 0;
+        }
+
+        function downloadAllMeta() {
+            if (metaFiles.length === 0) return;
+            let downloaded = 0;
+            metaFiles.forEach((music, index) => {
+                setTimeout(() => {
+                    const newFileName = music.artist && music.title 
+                        ? `${music.artist} - ${music.title}${music.originalName.substring(music.originalName.lastIndexOf('.'))}` 
+                        : music.originalName;
+                    const blob = new Blob([music.fileData], { type: music.file.type });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = newFileName;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    downloaded++;
+                    if (downloaded === metaFiles.length) {
+                        showToast('success', 'Bajarildi!', `${metaFiles.length} ta fayl yuklandi`);
+                    }
+                }, index * 300);
+            });
+        }
+
+        function clearMetaFiles() {
+            if (confirm('Barcha fayllarni o\'chirmoqchimisiz?')) {
+                const count = metaFiles.length;
+                metaFiles = [];
+                globalImageData = null;
+                renderMetaFiles();
+                updateMetaButtons();
+                updateBadges();
+                document.getElementById('globalControlsMeta').style.display = 'none';
+                showToast('info', 'Tozalandi', `${count} ta fayl o\'chirildi`);
+            }
+        }
+
+        // --- UTILS ---
+        function showToast(type, title, message) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const iconName = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info';
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.4s reverse';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        function updateBadges() {
+            document.getElementById('cutBadge').textContent = cutFiles.length;
+            document.getElementById('metaBadge').textContent = metaFiles.length;
+        }
+
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+            const indicator = document.getElementById('tabIndicator');
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            if (tab === 'cut') {
+                tabs[0].classList.add('active');
+                document.getElementById('cutTab').classList.add('active');
+                indicator.style.width = tabs[0].offsetWidth + 'px';
+                indicator.style.left = tabs[0].offsetLeft + 'px';
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('metadataTab').classList.add('active');
+                indicator.style.width = tabs[1].offsetWidth + 'px';
+                indicator.style.left = tabs[1].offsetLeft + 'px';
+            }
+            if (typeof lucide !== 'undefined') {
+                setTimeout(() => lucide.createIcons(), 100);
+            }
+        }
+
+        // --- AUDIO UTILS (same as before) ---
+        function bufferToWave(buffer, lowQuality = false) {
+            const sampleRate = lowQuality ? Math.min(22050, buffer.sampleRate) : buffer.sampleRate;
+            const numChannels = lowQuality ? 1 : buffer.numberOfChannels;
+            const bitDepth = lowQuality ? 8 : 16;
+            const downsampleRatio = buffer.sampleRate / sampleRate;
+            const newLength = Math.floor(buffer.length / downsampleRatio);
+            const length = newLength * numChannels * (bitDepth / 8) + 44;
+            const arrayBuffer = new ArrayBuffer(length);
+            const view = new DataView(arrayBuffer);
+            let pos = 0;
+            function setUint16(data) {
+                view.setUint16(pos, data, true);
+                pos += 2;
+            }
+            function setUint32(data) {
+                view.setUint32(pos, data, true);
+                pos += 4;
+            }
+            setUint32(0x46464952);
+            setUint32(length - 8);
+            setUint32(0x45564157);
+            setUint32(0x20746d66);
+            setUint32(16);
+            setUint16(1);
+            setUint16(numChannels);
+            setUint32(sampleRate);
+            setUint32(sampleRate * (bitDepth / 8) * numChannels);
+            setUint16(numChannels * (bitDepth / 8));
+            setUint16(bitDepth);
+            setUint32(0x61746164);
+            setUint32(length - pos - 4);
+            const channels = [];
+            for (let i = 0; i < buffer.numberOfChannels; i++) {
+                channels.push(buffer.getChannelData(i));
+            }
+            for (let i = 0; i < newLength; i++) {
+                const sourceIndex = Math.floor(i * downsampleRatio);
+                for (let channel = 0; channel < numChannels; channel++) {
+                    const channelData = numChannels === 1 && buffer.numberOfChannels > 1
+                        ? (channels[0][sourceIndex] + (channels[1] ? channels[1][sourceIndex] : 0)) / 2
+                        : channels[channel][sourceIndex];
+                    let sample = Math.max(-1, Math.min(1, channelData));
+                    if (bitDepth === 8) {
+                        sample = (sample + 1) * 127.5;
+                        view.setUint8(pos, sample);
+                        pos += 1;
+                    } else {
+                        sample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                        view.setInt16(pos, sample, true);
+                        pos += 2;
+                    }
+                }
+            }
+            return new Blob([arrayBuffer], { type: 'audio/wav' });
+        }
+
+        async function encodeMP3Low(audioBuffer) {
+            const monoChannel = audioBuffer.numberOfChannels > 1 
+                ? mixToMono(audioBuffer) 
+                : audioBuffer.getChannelData(0);
+            const downsampledData = downsample(monoChannel, audioBuffer.sampleRate, 22050);
+            return bufferToWave({
+                numberOfChannels: 1,
+                sampleRate: 22050,
+                length: downsampledData.length,
+                getChannelData: () => downsampledData
+            }, true);
+        }
+
+        function mixToMono(audioBuffer) {
+            const left = audioBuffer.getChannelData(0);
+            const right = audioBuffer.numberOfChannels > 1 ? audioBuffer.getChannelData(1) : left;
+            const mono = new Float32Array(left.length);
+            for (let i = 0; i < left.length; i++) {
+                mono[i] = (left[i] + right[i]) / 2;
+            }
+            return mono;
+        }
+
+        function downsample(buffer, fromSampleRate, toSampleRate) {
+            const ratio = fromSampleRate / toSampleRate;
+            const newLength = Math.round(buffer.length / ratio);
+            const result = new Float32Array(newLength);
+            for (let i = 0; i < newLength; i++) {
+                const sourceIndex = Math.floor(i * ratio);
+                result[i] = buffer[sourceIndex];
+            }
+            return result;
+        }
+    </script>
+</body>
+</html>
